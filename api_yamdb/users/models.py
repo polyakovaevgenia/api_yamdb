@@ -16,7 +16,7 @@ class User(AbstractUser):
         verbose_name='Электронная почта',
         blank=False,
         null=False,
-        max_length=128,
+        max_length=254,
         unique=True,
     )
     role = models.CharField(
