@@ -24,7 +24,7 @@ class Category(models.Model):
     name = models.CharField(
         verbose_name='Категория',
         help_text='Наименование категории',
-        max_length=128,
+        max_length=256,
         unique=True,
     )
     slug = models.SlugField(
