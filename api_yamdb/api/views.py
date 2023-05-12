@@ -1,4 +1,5 @@
 from rest_framework import filters, mixins, viewsets
+from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 
 from reviews.models import Category, Genre, Review, Title
@@ -45,7 +46,9 @@ class GenreViewSet(ListCreateDestroyViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     """API для работы c произведениями."""
 
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')
+    ).all().order_by('name')
     permission_classes = (RoleAdminrOrReadOnly,)
     filter_backends = [DjangoFilterBackend]
     filterset_class = FilterForTitles
