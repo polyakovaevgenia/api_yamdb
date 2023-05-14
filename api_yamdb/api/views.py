@@ -1,10 +1,10 @@
-from rest_framework import filters, mixins, viewsets
+from rest_framework import filters, mixins, viewsets, serializers
 from django.db.models import Avg
+from django.db import IntegrityError
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 
 from reviews.models import Category, Genre, Title, Review
-# from users.models import User
 
 from .filters import FilterForTitles
 from .serializers import (CategorySerializer, GenreSerializer,
@@ -80,8 +80,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return new_queryset
 
     def perform_create(self, serializer):
-        title = self.get_title()
-        serializer.save(author=self.request.user, title=title)
+        try:
+            title = self.get_title()
+            serializer.save(author=self.request.user, title=title)
+        except IntegrityError:
+            raise serializers.ValidationError(
+                {'detail': 'Вы можете оставить только один отзыв.'})
+        return title
 
 
 class CommentViewSet(viewsets.ModelViewSet):

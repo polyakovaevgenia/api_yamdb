@@ -38,7 +38,8 @@ class TitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = '__all__'
+        fields = ('name', 'year', 'description', 'id', 'genre',
+                  'category', 'reviews')
 
 
 class ReadOnlyTitleSerializer(serializers.ModelSerializer):
@@ -50,24 +51,32 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = '__all__'
+        fields = ('name', 'year', 'description', 'id', 'genre',
+                  'category', 'reviews', 'rating')
 
 
 class ReviewSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Review."""
 
     author = serializers.StringRelatedField(read_only=True)
+    title = serializers.StringRelatedField(read_only=True)
 
     class Meta:
-        fields = ('text', 'score', 'author', 'id', 'pub_date')
+        fields = ('id', 'title', 'author', 'text', 'score',
+                  'comments', 'pub_date')
         model = Review
+
+    def validate_reviews(author, title):
+        if title.reviews.filter(author=author).exists():
+            raise serializers.ValidationError("Вы уже написали отзыв")
 
 
 class CommentSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Comment."""
 
     author = serializers.StringRelatedField(read_only=True)
+    review = serializers.StringRelatedField(read_only=True)
 
     class Meta:
-        fields = ('text', 'author', 'id', 'pub_date')
+        fields = ('text', 'author', 'id', 'review', 'pub_date')
         model = Comment
