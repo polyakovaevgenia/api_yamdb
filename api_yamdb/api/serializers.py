@@ -59,7 +59,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField(read_only=True)
 
     class Meta:
-        fields = '__all__'
+        fields = ('text', 'score', 'author', 'id', 'pub_date')
         model = Review
 
 
@@ -69,5 +69,5 @@ class CommentSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField(read_only=True)
 
     class Meta:
-        fields = '__all__'
+        fields = ('text', 'author', 'id', 'pub_date')
         model = Comment
