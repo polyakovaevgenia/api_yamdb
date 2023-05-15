@@ -10,7 +10,7 @@ class RoleAdminrOrReadOnly(permissions.BasePermission):
             and (request.user.is_admin or request.user.is_superuser)
         )
 
-
+      
 class IsAdminIsModeratorIsAuthorOrReadOnly(permissions.BasePermission):
     """Доступ на чтение всем. Полный доступ автору, админу и модератору."""
 
@@ -22,3 +22,4 @@ class IsAdminIsModeratorIsAuthorOrReadOnly(permissions.BasePermission):
         return (request.method in permissions.SAFE_METHODS
                 or (obj.author == request.user or request.user.is_admin
                     or request.user.is_moderator))
+
