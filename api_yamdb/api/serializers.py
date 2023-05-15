@@ -61,9 +61,9 @@ class ReviewSerializer(serializers.ModelSerializer):
     title = serializers.StringRelatedField(read_only=True)
 
     class Meta:
+        model = Review
         fields = ('id', 'title', 'author', 'text', 'score',
                   'comments', 'pub_date')
-        model = Review
 
     def validate_reviews(author, title):
         if title.reviews.filter(author=author).exists():
@@ -77,12 +77,13 @@ class CommentSerializer(serializers.ModelSerializer):
     review = serializers.StringRelatedField(read_only=True)
 
     class Meta:
-        fields = ('text', 'author', 'id', 'review', 'pub_date')
         model = Comment
+        fields = ('text', 'author', 'id', 'review', 'pub_date')
 
 
 class UserSerializer(serializers.ModelSerializer):
     """Сериалайзер пользователя - Администратор"""
+
     username = serializers.CharField(
         validators=(
             UniqueValidator(queryset=User.objects.all()),
@@ -100,14 +101,13 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = (
-            'username', 'email', 'first_name',
-            'last_name', 'bio', 'role'
-        )
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
 
 
 class UserRegistrering(serializers.ModelSerializer):
     """Сериализатор для регистрации пользователей."""
+
     username = serializers.CharField(
         validators=(
             UniqueValidator(queryset=User.objects.all()),
@@ -136,13 +136,15 @@ class UserRegistrering(serializers.ModelSerializer):
 
 
 class TokenJWTSerializer(serializers.Serializer):
-    """"Сериалайзер для получения токена"""
+    """"Сериалайзер для получения токена."""
+
     username = serializers.CharField(required=True)
     confirmation_code = serializers.CharField(required=True)
 
 
 class UserMeSerializer(serializers.ModelSerializer):
     """Сериализатор для работы с личными данными поьзователя."""
+
     username = serializers.CharField(
         validators=(
             UniqueValidator(queryset=User.objects.all()),
@@ -160,8 +162,6 @@ class UserMeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = (
-            'username', 'email', 'first_name',
-            'last_name', 'bio', 'role'
-        )
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
         read_only_fields = ('role',)
