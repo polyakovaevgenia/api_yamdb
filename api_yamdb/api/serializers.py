@@ -81,7 +81,6 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
 
 
-
 class UserSerializer(serializers.ModelSerializer):
     """Сериалайзер пользователя - Администратор"""
     username = serializers.CharField(
