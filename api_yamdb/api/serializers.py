@@ -68,7 +68,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def validate_reviews(author, title):
         if title.reviews.filter(author=author).exists():
-            raise serializers.ValidationError("Вы уже написали отзыв")
+            raise serializers.ValidationError('Вы уже написали отзыв')
 
 
 class CommentSerializer(serializers.ModelSerializer):
