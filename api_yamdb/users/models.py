@@ -11,7 +11,7 @@ class User(AbstractUser):
         (ADMIN, 'Администратор'),
         (MODERATOR, 'Модератор'),
     )
-    
+
     username = models.CharField(
         max_length=150,
         verbose_name='Username',
@@ -28,12 +28,12 @@ class User(AbstractUser):
         max_length=150,
         verbose_name='Имя',
         null=True)
-    
+
     last_name = models.CharField(
         max_length=150,
         verbose_name='Фамилия',
         null=True)
-    
+
     bio = models.TextField(
         verbose_name='Биография',
         blank=True,
@@ -47,7 +47,7 @@ class User(AbstractUser):
         blank=False,
         max_length=15,
     )
-    
+
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
