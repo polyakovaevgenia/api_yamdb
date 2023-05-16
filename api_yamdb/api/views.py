@@ -156,8 +156,8 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny,])
-def Signup(request):
+@permission_classes([AllowAny, ])
+def signup(request):
     """Регистрация пользователей"""
 
     serializer = UserRegistrering(data=request.data)
@@ -186,7 +186,7 @@ def Signup(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def GetToken(request):
+def gettoken(request):
     """Получение токена"""
 
     serializer = TokenJWTSerializer(data=request.data)
