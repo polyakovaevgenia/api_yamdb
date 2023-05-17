@@ -1,4 +1,3 @@
-from django.db import IntegrityError
 from django.db.models import Avg
 
 from django.contrib.auth.tokens import default_token_generator
@@ -89,12 +88,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return title.reviews.all()
 
     def perform_create(self, serializer):
-        try:
-            title = self.get_title()
-            serializer.save(author=self.request.user, title=title)
-        except IntegrityError:
+        title = self.get_title()
+        if title.reviews.filter(author=self.request.user).exists():
             raise serializers.ValidationError(
                 {'detail': 'Вы можете оставить только один отзыв.'})
+        serializer.save(author=self.request.user, title=title)
         return title
 
 

@@ -4,6 +4,10 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from .validators import validator_year
 from users.models import User
 
+TEXT_SYMBOLS_NUMBER = 25
+MINIMAL_SCORE = 1
+MAXIMUM_SCORE = 10
+
 
 class CreatedModel(models.Model):
     """Абстрактная модель. Добавляет дату публикации при создании."""
@@ -132,23 +136,22 @@ class Review(CreatedModel):
         related_name='reviews',
         on_delete=models.CASCADE,
     )
-    score = models.IntegerField(
+    score = models.PositiveSmallIntegerField(
         verbose_name='Оценка',
-        blank=False,
         validators=[
-            MinValueValidator(1),
-            MaxValueValidator(10)
+            MinValueValidator(MINIMAL_SCORE),
+            MaxValueValidator(MAXIMUM_SCORE)
         ]
     )
 
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
         unique_together = ['author', 'title']
 
     def __str__(self):
-        return self.text[:25]
+        return self.text[:TEXT_SYMBOLS_NUMBER]
 
 
 class Comment(CreatedModel):
@@ -176,7 +179,7 @@ class Comment(CreatedModel):
     class Meta:
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
 
     def __str__(self):
-        return self.text[:25]
+        return self.text[:TEXT_SYMBOLS_NUMBER]

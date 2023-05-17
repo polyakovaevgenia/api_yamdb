@@ -57,8 +57,9 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Review."""
 
-    author = serializers.StringRelatedField(read_only=True)
-    title = serializers.StringRelatedField(read_only=True)
+    author = serializers.SlugRelatedField(slug_field='username',
+                                          read_only=True)
+    title = serializers.StringRelatedField()
 
     class Meta:
         model = Review
@@ -69,8 +70,9 @@ class ReviewSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Comment."""
 
-    author = serializers.StringRelatedField(read_only=True)
-    review = serializers.StringRelatedField(read_only=True)
+    author = serializers.SlugRelatedField(slug_field='username',
+                                          read_only=True)
+    review = serializers.StringRelatedField()
 
     class Meta:
         model = Comment
