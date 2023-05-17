@@ -58,7 +58,7 @@ class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
         validators=(
             UniqueValidator(queryset=User.objects.all()),
-            RegexValidator(regex=r'^[\w.@+-]',
+            RegexValidator(regex=r'^[\w.@+-]+\Z',
                            message='Неверное имя пользователя')
         ),
         required=True,
@@ -83,7 +83,7 @@ class UserRegistrering(serializers.ModelSerializer):
     username = serializers.CharField(
         validators=(
             UniqueValidator(queryset=User.objects.all()),
-            RegexValidator(regex=r'^[\w.@+-]',
+            RegexValidator(regex=r'^[\w.@+-]+\Z',
                            message='Неверное имя пользователя')
         ),
         required=True,
@@ -118,7 +118,7 @@ class UserMeSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
         validators=(
             UniqueValidator(queryset=User.objects.all()),
-            RegexValidator(regex=r'^[\w.@+-]',
+            RegexValidator(regex=r'^[\w.@+-]+\Z',
                            message='Неверное имя пользователя')
         ),
         required=True,

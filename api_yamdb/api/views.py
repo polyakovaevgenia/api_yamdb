@@ -154,16 +154,19 @@ def GetToken(request):
     """Получение токена"""
 
     serializer = TokenJWTSerializer(data=request.data)
-    if serializer.is_valid():
-        user = get_object_or_404(
-            User, username=serializer.validated_data["username"]
-        )
-        if default_token_generator.check_token(
-            user, serializer.validated_data["confirmation_code"]
+    serializer.is_valid(raise_exception=True)
+    data = serializer.validated_data
+    try:
+        user = User.objects.get(username=data['username'])
+    except User.DoesNotExist:
+        return Response(
+            {'username': 'Пользователь не найден!'},
+            status=status.HTTP_404_NOT_FOUND)
+    if default_token_generator.check_token(
+        user, serializer.validated_data["confirmation_code"]
         ):
-            token = AccessToken.for_user(user)
-            return Response({'token': str(token)}, status=status.HTTP_200_OK)
+        token = AccessToken.for_user(user)
+        return Response({'token': str(token)}, status=status.HTTP_200_OK)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'confirmation_code': 'Неверный код подтверждения!'}, status=status.HTTP_400_BAD_REQUEST)
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
