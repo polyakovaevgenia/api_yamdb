@@ -41,10 +41,7 @@ class TitleSerializer(serializers.ModelSerializer):
                   'category')
     
     def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['category'] = CategorySerializer(instance.category).data
-        # representation['genre'] = GenreSerializer(instance.genre).data
-        return representation
+        return ReadOnlyTitleSerializer(instance).data
 
     def validate(self, data):
         if 'genre' in data and not len(data['genre']):
