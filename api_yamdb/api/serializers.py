@@ -39,7 +39,7 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
         fields = ('id', 'name', 'year', 'description', 'genre',
                   'category')
-    
+
     def to_representation(self, instance):
         return ReadOnlyTitleSerializer(instance).data
 
@@ -49,8 +49,8 @@ class TitleSerializer(serializers.ModelSerializer):
                 'Поле genre обязательно к заполнению!'
             )
         return data
-    
-    
+
+
 class ReadOnlyTitleSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Title при действии 'retrieve', 'list.'"""
 
