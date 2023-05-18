@@ -41,7 +41,7 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-        ordering = ['name']
+        ordering = ('name',)
 
     def __str__(self):
         return self.slug
@@ -66,7 +66,7 @@ class Genre(models.Model):
     class Meta:
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
-        ordering = ['name']
+        ordering = ('name',)
 
     def __str__(self):
         return self.slug
@@ -88,7 +88,6 @@ class Title(models.Model):
     description = models.TextField(
         verbose_name='Описание',
         help_text='Краткое описание произведения',
-        null=True,
         blank=True,
     )
     genre = models.ManyToManyField(
@@ -102,14 +101,14 @@ class Title(models.Model):
         verbose_name='Категория',
         help_text='Категория произведения',
         related_name='titles',
-        null=True,
+        blank=True,
         on_delete=models.SET_NULL,
     )
 
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
-        ordering = ['name', 'year']
+        ordering = ('name', 'year')
 
     def __str__(self):
         return self.name
