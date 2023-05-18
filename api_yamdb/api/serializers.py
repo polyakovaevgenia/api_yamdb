@@ -37,10 +37,23 @@ class TitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('name', 'year', 'description', 'id', 'genre',
-                  'category', 'reviews')
+        fields = ('id', 'name', 'year', 'description', 'genre',
+                  'category')
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['category'] = CategorySerializer(instance.category).data
+        # representation['genre'] = GenreSerializer(instance.genre).data
+        return representation
 
-
+    def validate(self, data):
+        if 'genre' in data and not len(data['genre']):
+            raise serializers.ValidationError(
+                'Поле genre обязательно к заполнению!'
+            )
+        return data
+    
+    
 class ReadOnlyTitleSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Title при действии 'retrieve', 'list.'"""
 
@@ -50,8 +63,8 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('name', 'year', 'description', 'id', 'genre',
-                  'category', 'reviews', 'rating')
+        fields = ('id', 'name', 'year', 'rating', 'description', 'genre',
+                  'category')
 
 
 class ReviewSerializer(serializers.ModelSerializer):
