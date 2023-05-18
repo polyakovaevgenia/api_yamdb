@@ -37,10 +37,20 @@ class TitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('name', 'year', 'description', 'id', 'genre',
-                  'category', 'reviews')
+        fields = ('id', 'name', 'year', 'description', 'genre',
+                  'category')
+    
+    def to_representation(self, instance):
+        return ReadOnlyTitleSerializer(instance).data
 
-
+    def validate(self, data):
+        if 'genre' in data and not len(data['genre']):
+            raise serializers.ValidationError(
+                'Поле genre обязательно к заполнению!'
+            )
+        return data
+    
+    
 class ReadOnlyTitleSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Title при действии 'retrieve', 'list.'"""
 
@@ -50,15 +60,16 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('name', 'year', 'description', 'id', 'genre',
-                  'category', 'reviews', 'rating')
+        fields = ('id', 'name', 'year', 'rating', 'description', 'genre',
+                  'category')
 
 
 class ReviewSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Review."""
 
-    author = serializers.StringRelatedField(read_only=True)
-    title = serializers.StringRelatedField(read_only=True)
+    author = serializers.SlugRelatedField(slug_field='username',
+                                          read_only=True)
+    title = serializers.StringRelatedField()
 
     class Meta:
         model = Review
@@ -69,8 +80,9 @@ class ReviewSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Comment."""
 
-    author = serializers.StringRelatedField(read_only=True)
-    review = serializers.StringRelatedField(read_only=True)
+    author = serializers.SlugRelatedField(slug_field='username',
+                                          read_only=True)
+    review = serializers.StringRelatedField()
 
     class Meta:
         model = Comment
@@ -79,11 +91,10 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     """Сериалайзер пользователя - Администратор"""
-
     username = serializers.CharField(
         validators=(
             UniqueValidator(queryset=User.objects.all()),
-            RegexValidator(regex=r'^[\w.@+-]',
+            RegexValidator(regex=r'^[\w.@+-]+\Z',
                            message='Неверное имя пользователя')
         ),
         required=True,
@@ -97,17 +108,18 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name',
-                  'last_name', 'bio', 'role')
+        fields = (
+            'username', 'email', 'first_name',
+            'last_name', 'bio', 'role'
+        )
 
 
 class UserRegistrering(serializers.ModelSerializer):
     """Сериализатор для регистрации пользователей."""
-
     username = serializers.CharField(
         validators=(
             UniqueValidator(queryset=User.objects.all()),
-            RegexValidator(regex=r'^[\w.@+-]',
+            RegexValidator(regex=r'^[\w.@+-]+\Z',
                            message='Неверное имя пользователя')
         ),
         required=True,
@@ -132,19 +144,17 @@ class UserRegistrering(serializers.ModelSerializer):
 
 
 class TokenJWTSerializer(serializers.Serializer):
-    """"Сериалайзер для получения токена."""
-
+    """"Сериалайзер для получения токена"""
     username = serializers.CharField(required=True)
     confirmation_code = serializers.CharField(required=True)
 
 
 class UserMeSerializer(serializers.ModelSerializer):
     """Сериализатор для работы с личными данными поьзователя."""
-
     username = serializers.CharField(
         validators=(
             UniqueValidator(queryset=User.objects.all()),
-            RegexValidator(regex=r'^[\w.@+-]',
+            RegexValidator(regex=r'^[\w.@+-]+\Z',
                            message='Неверное имя пользователя')
         ),
         required=True,
@@ -158,6 +168,8 @@ class UserMeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name',
-                  'last_name', 'bio', 'role')
+        fields = (
+            'username', 'email', 'first_name',
+            'last_name', 'bio', 'role'
+        )
         read_only_fields = ('role',)

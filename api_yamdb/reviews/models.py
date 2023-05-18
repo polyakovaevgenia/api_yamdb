@@ -4,6 +4,10 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from .validators import validator_year
 from users.models import User
 
+TEXT_SYMBOLS_NUMBER = 25
+MINIMAL_SCORE = 1
+MAXIMUM_SCORE = 10
+
 
 class CreatedModel(models.Model):
     """Абстрактная модель. Добавляет дату публикации при создании."""
@@ -37,7 +41,7 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-        ordering = ['name']
+        ordering = ('name',)
 
     def __str__(self):
         return self.slug
@@ -62,7 +66,7 @@ class Genre(models.Model):
     class Meta:
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
-        ordering = ['name']
+        ordering = ('name',)
 
     def __str__(self):
         return self.slug
@@ -84,7 +88,6 @@ class Title(models.Model):
     description = models.TextField(
         verbose_name='Описание',
         help_text='Краткое описание произведения',
-        null=True,
         blank=True,
     )
     genre = models.ManyToManyField(
@@ -98,14 +101,14 @@ class Title(models.Model):
         verbose_name='Категория',
         help_text='Категория произведения',
         related_name='titles',
-        null=True,
+        blank=True,
         on_delete=models.SET_NULL,
     )
 
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
-        ordering = ['name', 'year']
+        ordering = ('name', 'year')
 
     def __str__(self):
         return self.name
@@ -132,23 +135,22 @@ class Review(CreatedModel):
         related_name='reviews',
         on_delete=models.CASCADE,
     )
-    score = models.IntegerField(
+    score = models.PositiveSmallIntegerField(
         verbose_name='Оценка',
-        blank=False,
         validators=[
-            MinValueValidator(1),
-            MaxValueValidator(10)
+            MinValueValidator(MINIMAL_SCORE),
+            MaxValueValidator(MAXIMUM_SCORE)
         ]
     )
 
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
         unique_together = ['author', 'title']
 
     def __str__(self):
-        return self.text[:25]
+        return self.text[:TEXT_SYMBOLS_NUMBER]
 
 
 class Comment(CreatedModel):
@@ -176,7 +178,7 @@ class Comment(CreatedModel):
     class Meta:
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
 
     def __str__(self):
-        return self.text[:25]
+        return self.text[:TEXT_SYMBOLS_NUMBER]

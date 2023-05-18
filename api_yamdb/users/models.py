@@ -6,59 +6,57 @@ class User(AbstractUser):
     USER = 'user'
     ADMIN = 'admin'
     MODERATOR = 'moderator'
+    SUPERUSER = 'superuser'
     ROLE_CHOICES = (
         (USER, 'Пользователь'),
         (ADMIN, 'Администратор'),
         (MODERATOR, 'Модератор'),
+        (SUPERUSER, 'Суперюзер')
     )
 
     username = models.CharField(
         max_length=150,
         verbose_name='Username',
-        unique=True
+        unique=True,
     )
+
     email = models.EmailField(
         verbose_name='Электронная почта',
-        blank=False,
-        null=False,
         max_length=254,
         unique=True,
     )
     first_name = models.CharField(
         max_length=150,
         verbose_name='Имя',
-        null=True)
+        blank=True)
 
     last_name = models.CharField(
         max_length=150,
         verbose_name='Фамилия',
-        null=True)
+        blank=True)
 
     bio = models.TextField(
         verbose_name='Биография',
         blank=True,
-        null=True,
-        default=None,
     )
     role = models.CharField(
         verbose_name='Роль',
         choices=ROLE_CHOICES,
         default=USER,
-        blank=False,
         max_length=15,
     )
 
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-        ordering = ['role', 'username']
+        ordering = ('role', 'username')
 
     def __str__(self):
         return self.username
 
     @property
     def is_admin(self):
-        return self.role == self.ADMIN
+        return self.role == self.ADMIN or self.role == self.SUPERUSER
 
     @property
     def is_moderator(self):

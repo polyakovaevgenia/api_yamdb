@@ -1,4 +1,3 @@
-from django.db import IntegrityError
 from django.db.models import Avg
 
 from django.contrib.auth.tokens import default_token_generator
@@ -6,7 +5,7 @@ from django.core.mail import send_mail
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 
-from rest_framework import filters, mixins, viewsets, status, serializers
+from rest_framework import filters, viewsets, status, serializers
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -17,6 +16,8 @@ from users.models import User
 
 from .filters import FilterForTitles
 
+from .mixins import ListCreateDestroyViewSet
+
 from .serializers import (CategorySerializer, GenreSerializer,
                           ReadOnlyTitleSerializer, TitleSerializer,
                           ReviewSerializer, CommentSerializer, UserSerializer,
@@ -24,15 +25,6 @@ from .serializers import (CategorySerializer, GenreSerializer,
                           TokenJWTSerializer)
 from .permissions import (IsAdminUser, RoleAdminrOrReadOnly,
                           IsAdminIsModeratorIsAuthorOrReadOnly)
-
-
-class ListCreateDestroyViewSet(
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet
-):
-    pass
 
 
 class CategoryViewSet(ListCreateDestroyViewSet):
@@ -89,12 +81,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return title.reviews.all()
 
     def perform_create(self, serializer):
-        try:
-            title = self.get_title()
-            serializer.save(author=self.request.user, title=title)
-        except IntegrityError:
+        title = self.get_title()
+        if title.reviews.filter(author=self.request.user).exists():
             raise serializers.ValidationError(
                 {'detail': 'Вы можете оставить только один отзыв.'})
+        serializer.save(author=self.request.user, title=title)
         return title
 
 
@@ -156,7 +147,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny, ])
+@permission_classes([AllowAny,])
 def signup(request):
     """Регистрация пользователей"""
 
@@ -190,16 +181,18 @@ def gettoken(request):
     """Получение токена"""
 
     serializer = TokenJWTSerializer(data=request.data)
-    if serializer.is_valid():
-        user = get_object_or_404(
-            User, username=serializer.validated_data["username"]
-        )
-        if default_token_generator.check_token(
-            user, serializer.validated_data["confirmation_code"]
-        ):
-            token = AccessToken.for_user(user)
-            return Response({'token': str(token)}, status=status.HTTP_200_OK)
+    serializer.is_valid(raise_exception=True)
+    data = serializer.validated_data
+    try:
+        user = User.objects.get(username=data['username'])
+    except User.DoesNotExist:
+        return Response(
+            {'username': 'Пользователь не найден!'},
+            status=status.HTTP_404_NOT_FOUND)
+    if default_token_generator.check_token(
+        user, serializer.validated_data["confirmation_code"]
+    ):
+        token = AccessToken.for_user(user)
+        return Response({'token': str(token)}, status=status.HTTP_200_OK)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'confirmation_code': 'Неверный код подтверждения!'}, status=status.HTTP_400_BAD_REQUEST)
