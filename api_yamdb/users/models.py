@@ -6,12 +6,10 @@ class User(AbstractUser):
     USER = 'user'
     ADMIN = 'admin'
     MODERATOR = 'moderator'
-    SUPERUSER = 'superuser'
     ROLE_CHOICES = (
         (USER, 'Пользователь'),
         (ADMIN, 'Администратор'),
-        (MODERATOR, 'Модератор'),
-        (SUPERUSER, 'Суперюзер')
+        (MODERATOR, 'Модератор')
     )
 
     username = models.CharField(
@@ -56,7 +54,7 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == self.ADMIN or self.role == self.SUPERUSER
+        return self.role == self.ADMIN or self.is_superuser
 
     @property
     def is_moderator(self):
