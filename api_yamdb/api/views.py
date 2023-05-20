@@ -56,7 +56,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         rating=Avg('reviews__score')
     ).all().order_by('name')
     permission_classes = (RoleAdminrOrReadOnly,)
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = (DjangoFilterBackend,)
     filterset_class = FilterForTitles
     http_method_names = ['get', 'post', 'delete', 'patch']
 
